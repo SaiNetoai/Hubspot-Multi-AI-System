@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Campaign Analysis Viewer</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+      background: #f9f9f9;
+    }
+    #output {
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    textarea {
+      width: 100%;
+      height: 200px;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>📊 Campaign Analysis Markdown Viewer</h2>
+
+  <textarea id="markdown-input" placeholder="**Analysis of Campaign Performance**
+
+Based on the provided campaign data, here are some insights and suggestions:
+
+1. **July Mega Drive**
+   - **Goal:** Capture 1500 leads
+   - **Budget & Spend:** Not specified
+   - **Suggestion:** Set a specific budget for this campaign to ensure effective resource allocation. Consider tracking spend to monitor progress and optimize results.
+
+2. **Lead Generation**
+   - **Goal:** Lead generation
+   - **Budget & Spend:** Not specified
+   - **Suggestion:** Define a clear lead generation goal (e.g., number of leads, lead-to-customer conversion rate). Track spend to understand campaign efficiency.
+
+3. **Q2 Email Marketing & Q2 Email Marketing (Duplicate)**
+   - **Goal:** Increase sales by 20%
+   - **Budget & Spend:** Not specified
+   - **Suggestion:** Ensure there are no duplicate campaigns. Set a budget and track spend to monitor performance. Consider segmenting the audience for better targeting.
+
+4. **Q3 Email Marketing**
+   - **Goal:** Not specified
+   - **Budget & Spend:** Not specified
+   - **Suggestion:** Define a clear goal for this campaign. Set a budget and track spend once the goal is determined.
+
+5. **Summer Boost**
+   - **Goal:** Generate 1000 leads
+   - **Budget & Spend:** Not specified
+   - **Suggestion:** Set a specific budget for this campaign. Track spend to monitor progress and optimize results.
+
+6. **Test Campaign 2 & Test Campaign Debug**
+   - **Goal:** Not specified
+   - **Budget & Spend:** Not specified
+   - **Suggestion:** Define clear goals for these test campaigns. Set budgets and track spend to monitor performance and ensure they align with overall marketing objectives.
+
+**General Suggestions:**
+- Always set clear, measurable goals for campaigns.
+- Allocate specific budgets and track spend to monitor performance and optimize results.
+- Regularly review and analyze campaign performance to make data-driven decisions.
+- Ensure there are no duplicate campaigns to avoid confusion and optimize resources."></textarea>
+  <button onclick="renderMarkdown()">Render</button>
+
+  <hr>
+
+  <div id="output"></div>
+
+  <script>
+    function renderMarkdown() {
+      const markdownText = document.getElementById("markdown-input").value;
+      document.getElementById("output").innerHTML = marked.parse(markdownText);
+    }
+  </script>
+
+</body>
+</html>
