@@ -1,0 +1,246 @@
+# # Task-related models and tools
+# class TaskStatus(BaseModel):
+#     status: str = Field(description="Status of the tasks to retrieve (e.g., NOT_STARTED, IN_PROGRESS, COMPLETED)")
+
+# class TaskDueDate(BaseModel):
+#     due_date: str = Field(description="Due date of tasks to retrieve (format: YYYY-MM-DD)")
+
+# class CreateTaskInput(BaseModel):
+#     """Input model for creating a new task in HubSpot CRM.
+    
+#     All fields except subject are optional. If not provided:
+#     - status defaults to NOT_STARTED
+#     - priority defaults to MEDIUM
+#     - due_date defaults to tomorrow
+#     - body and company_name default to None
+#     """
+#     subject: str = Field(
+#         description="Subject/title of the task (required)",
+#         min_length=1,
+#         max_length=255
+#     )
+#     body: str = Field(
+#         description="Description or body text of the task (optional)",
+#         default=None
+#     )
+#     status: str = Field(
+#         description="Status of the task. Valid values: NOT_STARTED, IN_PROGRESS, COMPLETED, WAITING, DEFERRED",
+#         default="NOT_STARTED",
+#         pattern="^(NOT_STARTED|IN_PROGRESS|COMPLETED|WAITING|DEFERRED)$"
+#     )
+#     priority: str = Field(
+#         description="Priority of the task. Valid values: HIGH, MEDIUM, LOW",
+#         default="MEDIUM",
+#         pattern="^(HIGH|MEDIUM|LOW)$"
+#     )
+#     due_date: str = Field(
+#         description="Due date of the task in YYYY-MM-DD format. If not provided, defaults to tomorrow",
+#         default=None,
+#         pattern="^\d{4}-\d{2}-\d{2}$"
+#     )
+#     company_name: str = Field(
+#         description="Name of the company to associate this task with (optional)",
+#         default=None
+#     )
+
+# @tool("debug-task-api-tool", return_direct=True)
+# def debugTaskAPI():
+#     """Debug task API access and permissions"""
+#     return crm.debug_task_api()
+
+# @tool("get-all-tasks-tool", return_direct=True)
+# def getAllTasks():
+#     "Get all tasks in the CRM system"
+#     return crm.get_tasks()
+
+# @tool("get-tasks-by-status-tool", args_schema=TaskStatus, return_direct=True)
+# def getTasksByStatus(status: str):
+#     "Get tasks filtered by status (NOT_STARTED, IN_PROGRESS, COMPLETED)"
+#     return crm.get_tasks_by_status(status)
+
+# @tool("get-tasks-by-due-date-tool", args_schema=TaskDueDate, return_direct=True)
+# def getTasksByDueDate(due_date: str):
+#     "Get tasks with a specific due date (format: YYYY-MM-DD)"
+#     return crm.get_tasks_by_due_date(due_date)
+
+# @tool("create-task-tool", args_schema=CreateTaskInput, return_direct=True)
+# def createTask(subject: str, body: str = None, status: str = "NOT_STARTED", 
+#               priority: str = "MEDIUM", due_date: str = None, company_name: str = None):
+#     """Create a new task in the HubSpot CRM system with the provided details
+    
+#     Note: If no due_date is provided, the task will be due tomorrow by default.
+#     """
+    
+#     logger.debug(f"=== CREATE TASK TOOL CALLED ===")
+#     logger.debug(f"Parameters: subject={subject}, status={status}, priority={priority}, due_date={due_date}, company={company_name}")
+    
+#     task_data = {
+#         "subject": subject,
+#         "body": body,
+#         "status": status,
+#         "priority": priority,
+#         "due_date": due_date,
+#         "company_name": company_name
+#     }
+    
+#     # Create task
+#     response = crm.create_task(task_data)
+#     logger.debug(f"Task creation response: {response}")
+    
+#     # Check for error in response
+#     if "error" in response:
+#         error_msg = f"Failed to create task: {response['error']}"
+#         logger.error(error_msg)
+#         return {"error": error_msg, "success": False}
+    
+#     # Validate that we received a task ID from HubSpot
+#     if "id" not in response:
+#         error_msg = "No task ID returned from HubSpot API. Task creation may have failed."
+#         logger.error(error_msg)
+#         return {"error": error_msg, "success": False}
+    
+#     # Create a user-friendly response
+#     result = {
+#         "success": True,
+#         "task_id": response["id"],
+#         "message": f"Task '{subject}' created successfully with ID: {response['id']}"
+#     }
+    
+#     # Add details about company association if relevant
+#     if company_name and "company_association" in response:
+#         if response["company_association"].get("success"):
+#             result["company_association"] = f"Task associated with company: {company_name}"
+#         else:
+#             result["company_association"] = f"Note: Could not associate task with company: {company_name}"
+    
+#     # Add due date info
+#     if due_date:
+#         result["due_date"] = due_date
+#     else:
+#         result["due_date_note"] = "Task due date set to tomorrow (default)"
+    
+#     logger.info(f"Task created successfully: {subject} with ID: {response['id']}")
+#     return result
+
+# # Update Task Tool
+# class UpdateTaskInput(BaseModel):
+#     """Input model for updating an existing task in HubSpot CRM.
+    
+#     All fields are optional - only provided fields will be updated.
+#     """
+#     task_id: str = Field(
+#         description="ID of the task to update (required)",
+#         min_length=1
+#     )
+#     subject: str = Field(
+#         description="New task subject/title (optional)",
+#         default=None
+#     )
+#     body: str = Field(
+#         description="New task description (optional)",
+#         default=None
+#     )
+#     status: str = Field(
+#         description="New task status. Valid values: NOT_STARTED, IN_PROGRESS, COMPLETED, WAITING, DEFERRED",
+#         default=None,
+#         pattern="^(NOT_STARTED|IN_PROGRESS|COMPLETED|WAITING|DEFERRED)$"
+#     )
+#     priority: str = Field(
+#         description="New task priority. Valid values: HIGH, MEDIUM, LOW",
+#         default=None,
+#         pattern="^(HIGH|MEDIUM|LOW)$"
+#     )
+
+# @tool("update-task-tool", args_schema=UpdateTaskInput, return_direct=True)
+# def updateTask(task_id: str, subject: str = None, body: str = None, 
+#                status: str = None, priority: str = None):
+#     """Update an existing task in HubSpot CRM system
+    
+#     Only the fields that are provided will be updated. All fields are optional
+#     except for task_id.
+#     """
+    
+#     logger.debug(f"=== UPDATE TASK TOOL CALLED ===")
+#     logger.debug(f"Parameters: task_id={task_id}, subject={subject}, status={status}, priority={priority}")
+    
+#     # Prepare update data (only include fields that are provided)
+#     update_data = {}
+#     if subject:
+#         update_data["subject"] = subject
+#     if body:
+#         update_data["body"] = body
+#     if status:
+#         update_data["status"] = status
+#     if priority:
+#         update_data["priority"] = priority
+    
+#     if not update_data:
+#         error_msg = "No fields provided for update"
+#         logger.error(error_msg)
+#         return {"error": error_msg, "success": False}
+    
+#     # Update task
+#     response = crm.update_task(task_id, update_data)
+#     logger.debug(f"Task update response: {response}")
+    
+#     if "error" in response:
+#         error_msg = f"Failed to update task: {response['error']}"
+#         logger.error(error_msg)
+#         return {"error": error_msg, "success": False}
+    
+#     result = {
+#         "success": True,
+#         "task_id": task_id,
+#         "message": f"Task {task_id} updated successfully",
+#         "updated_fields": list(update_data.keys())
+#     }
+    
+#     logger.info(f"Task {task_id} updated successfully with fields: {list(update_data.keys())}")
+#     return result
+
+# # Delete Task Tool
+# class DeleteTaskInput(BaseModel):
+#     """Input model for deleting a task from HubSpot CRM."""
+#     task_id: str = Field(
+#         description="ID of the task to delete (required)",
+#         min_length=1
+#     )
+
+# @tool("delete-task-tool", args_schema=DeleteTaskInput, return_direct=True)
+# def deleteTask(task_id: str):
+#     """Delete a task from HubSpot CRM system
+    
+#     This operation cannot be undone. The task will be permanently deleted.
+#     """
+    
+#     logger.debug(f"=== DELETE TASK TOOL CALLED ===")
+#     logger.debug(f"Parameters: task_id={task_id}")
+    
+#     # Delete task
+#     response = crm.delete_task(task_id)
+#     logger.debug(f"Task deletion response: {response}")
+    
+#     if "error" in response:
+#         error_msg = f"Failed to delete task: {response['error']}"
+#         logger.error(error_msg)
+#         return {"error": error_msg, "success": False}
+    
+#     result = {
+#         "success": True,
+#         "task_id": task_id,
+#         "message": f"Task {task_id} deleted successfully"
+#     }
+    
+#     logger.info(f"Task {task_id} deleted successfully")
+#     return result
+
+
+
+
+# debugTaskAPI,
+    # getAllTasks,
+    # getTasksByStatus,
+    # getTasksByDueDate,
+    # createTask,
+    # updateTask,
+    # deleteTask

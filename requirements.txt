@@ -1,0 +1,12 @@
+python-dotenv==1.0.1
+Flask==3.0.2
+Flask-Cors==4.0.0
+loguru==0.7.2
+pytz==2024.1
+langchain==0.2.13
+langgraph==0.2.3
+langgraph.checkpoint.postgres==1.0.3
+psycopg_pool==3.2.2
+langchain_mistralai==0.1.12
+hubspot-api-client==5.0.1
+pydantic==2.10.4
